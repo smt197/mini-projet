@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Cargaisons</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+      <!-- <link rel="stylesheet" href=".dist/style.css"> -->
+    <style>
+       
+        .sidebar {
+            width: 16rem;
+            transition: margin-left 0.3s;
+        }
+
+        .sidebar.hidden {
+            margin-left: -16rem;
+        }
+
+        .main-content {
+            transition: margin-left 0.3s;
+        }
+
+        .main-content.shifted {
+            margin-left: 16rem;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-400 p-8">
+    <header class="bg-purple-600 text-white p-4 flex justify-between items-center">
+        <button id="btn-toggle-sidebar" class="text-white text-2xl">☰</button>
+        <h1 class="text-2xl font-bold">Gestion des Cargaisons</h1>
+        <input type="text" placeholder="Rechercher..." class="p-2 rounded">
+    </header>
+
+    <div class="flex">
+        <aside id="sidebar" class="sidebar bg-purple-800 text-white hidden lg:block">
+            <div class="p-4">
+                <img src="/img/logo.jpeg" alt="Logo" class="mb-4 h-40 w-40 mr-2">
+                <h2 class="text-xl font-bold mb-4 text-yellow-200">SMT-company</h2>
+                <nav>
+                    <ul>
+                        <li class="mb-2"><a href="#" class="block p-2">Dashboard</a></li>
+                        <li class="mb-2"><a href="#" class="block p-2">Liste des Cargaisons</a></li>
+                        <li class="mb-2"><a href="#" class="block p-2">Produits</a></li>
+                        <li class="mb-2"><a href="#" class="block p-2">Paramètres</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+
+        <main id="main-content" class="main-content flex-grow bg-purple-200 p-8 shifted">
+            <div class="container mx-auto">
+                <h1 class="text-2xl font-bold mb-4">Gestion des Cargaisons</h1>
+
+                <div class="mb-4">
+                    <button id="btn-add" class="bg-blue-500 text-white px-4 py-2 rounded">Ajouter une cargaison</button>
+                    <button id="btn-filter-maritime" class="bg-green-500 text-white px-4 py-2 rounded">Filtrer Maritimes</button>
+                    <button id="btn-filter-aerienne" class="bg-yellow-500 text-white px-4 py-2 rounded">Filtrer Aériennes</button>
+                    <button id="btn-filter-routiere" class="bg-red-500 text-white px-4 py-2 rounded">Filtrer Routières</button>
+                    <button id="btn-list" class="bg-purple-500 text-white px-4 py-2 rounded">Lister toutes les cargaisons</button>
+                </div>
+
+                <div id="output" class="bg-white p-4 rounded shadow">
+                    <table class="min-w-full divide-y divide-gray-200 table">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Libellé</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Poids (kg)</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Toxicité</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="product-list" class="bg-white divide-y divide-gray-200">
+                            <!-- Liste des produits -->
+                            <!-- <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">flocon</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">35</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">6</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">ProduitAlimentaire</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500"><button type="button" id="view-1" class="bg-blue-500 text-white px-1 py-1 rounded">voir</button></td>
+                            </tr> -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white p-8 rounded-lg shadow-lg">
+            <div class="flex justify-end">
+                <button id="close" class="text-red-500 text-2xl font-bold">×</button>
+            </div>
+            <h2 class="text-xl font-bold mb-4">Ajouter une cargaison</h2>
+            <form id="form-add-cargaison">
+                <input type="hidden" class="form-control" id="produit-id">
+                <div class="mb-4">
+                    <label for="type-cargaison" class="block text-sm font-medium text-gray-700">Type de cargaison</label>
+                    <select id="type-cargaison" class="mt-1 block w-full p-2 border border-gray-300 rounded">
+                        <option value="CargaisonMaritime">Maritime</option>
+                        <option value="CargaisonAérienne">Aérienne</option>
+                        <option value="CargaisonRoutière">Routière</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="type-produit" class="block text-sm font-medium text-gray-700">Type de produit</label>
+                    <select id="type-produit" class="mt-1 block w-full p-2 border border-gray-300 rounded">
+                        <option value="ProduitAlimentaire">Alimentaire</option>
+                        <option value="ProduitChimique">Chimique</option>
+                        <option value="ProduitMateriel">Matériel</option>
+                        <option value="ProduitFragile">Fragile</option>
+                        <option value="ProduitIncassable">Incassable</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label for="libelle-produit" class="block text-sm font-medium text-gray-700">Libellé du produit</label>
+                    <input type="text" id="libelle-produit" class="mt-1 block w-full p-2 border border-gray-300 rounded">
+                </div>
+                <div class="mb-4">
+                    <label for="poids-produit" class="block text-sm font-medium text-gray-700">Poids du produit (kg)</label>
+                    <input type="number" id="poids-produit" class="mt-1 block w-full p-2 border border-gray-300 rounded">
+                </div>
+                <div class="mb-4" id="toxicite-field" class="hidden">
+                    <label for="toxicite-produit" class="block text-sm font-medium text-gray-700">Toxicité du produit</label>
+                    <input type="number" id="toxicite-produit" class="mt-1 block w-full p-2 border border-gray-300 rounded" min="1" max="10">
+                </div>
+                <div class="flex justify-end">
+                    <button type="button" id="btn-close-modal" class="bg-gray-500 text-white px-4 py-2 rounded mr-2">Annuler</button>
+                    <button id="ajouter" type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+<!-- Footer -->
+<footer class="bg-purple-600 text-white p-4 flex justify-between items-center">
+    <h4 class="text-xl">@Sonatel-SMT197</h4>
+</footer>
+    <script type="module" src="dist/test.js"></script>
+    <script>
+        const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('main-content');
+
+        btnToggleSidebar.addEventListener('click', () => {
+            sidebar.classList.toggle('hidden');
+            mainContent.classList.toggle('shifted');
+        });
+    </script>
+</body>
+
+</html>
+
